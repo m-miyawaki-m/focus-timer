@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>集中タイマー</title>
+<meta name="theme-color" content="#1E2A5A">
+<meta name="description" content="勉強時間を記録できるポモドーロタイマー">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="bgc" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header>
+    <div class="hdr-left">
+    <div class="brand-row">
+      <button class="brand" id="brandBtn" title="タイマーに戻る">集中タイマー</button>
+      <nav aria-label="画面切り替え">
+        <button data-tab="log" aria-pressed="false">記録</button>
+        <button data-tab="settings" aria-pressed="false">設定</button>
+      </nav>
+    </div>
+    <button class="now" id="nowBtn" aria-expanded="false" aria-controls="taskDrawer" title="タスク一覧を開く"><span class="now-n" id="nowN">#1</span><span class="now-t"><span id="nowT">タスクを選択</span><span id="taskBadge"></span><span class="chev" aria-hidden="true">›</span></span></button>
+    <div class="todayline">
+      <span>今日 <b id="todayTotal">0分</b></span>
+      <span>今週 <b id="weekTotal">0分</b> ／ 目標 <span id="weekGoalLbl"></span></span>
+    </div>
+    </div>
+  </header>
+
+  <!-- タイマー -->
+  <section id="tab-timer" data-mode="focus">
+    <div class="modes"><button class="mode-pill" id="modePill" title="押すと表示を切り替え">集中</button></div>
+    <div class="dial" id="dialBtn" role="button" tabindex="0" aria-label="開始">
+      <svg id="ring" viewBox="0 0 300 300" aria-hidden="true"></svg>
+      <div class="dial-center">
+        <div id="time" aria-live="off">25:00</div>
+        <div class="state"><svg class="act" viewBox="0 0 24 24" aria-hidden="true"><path id="icoPath" d="M8 5.5v13l10.5-6.5z"/></svg><span id="modeLabel" lang="en">Ready</span></div>
+        <div id="cycleDots" aria-label="セット進捗"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button id="btnFinish" class="btn">記録して終了</button>
+      <button id="btnDiscard" class="btn ghost">リセット</button>
+    </div>
+  </section>
+
+  <!-- 記録 -->
+  <section id="tab-log" hidden>
+    <div class="stats">
+      <div class="stat"><div class="k">今日</div><div class="v" id="sToday">0分</div></div>
+      <div class="stat"><div class="k">今週</div><div class="v" id="sWeek">0分</div><div class="bar"><span id="sWeekBar" style="width:0"></span></div></div>
+      <div class="stat"><div class="k">今月</div><div class="v" id="sMonth">0分</div></div>
+      <div class="stat"><div class="k">連続日数</div><div class="v" id="sStreak">0日</div></div>
+    </div>
+    <div class="panel">
+      <h2>直近14日</h2>
+      <div class="chartbox"><svg id="chart" viewBox="0 0 560 190"></svg></div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="panel">
+      <h2>科目別（今週）</h2>
+      <div id="breakdown"></div>
+    </div>
+    <div class="panel">
+      <h2>手動で追加</h2>
+      <div class="formgrid">
+        <div><label for="mDate">日付</label><input type="date" id="mDate"></div>
+        <div><label for="mTime">開始時刻</label><input type="time" id="mTime"></div>
+        <div><label for="mMin">時間（分）</label><input type="number" id="mMin" min="1" max="600" value="30"></div>
+        <div><label for="mSubject">科目</label><select id="mSubject"></select></div>
+        <div class="full"><label for="mMemo">メモ</label><input type="text" id="mMemo" maxlength="120"></div>
+        <div class="full"><button class="btn" id="mAdd">記録を追加</button></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2 style="display:flex;justify-content:space-between;align-items:center">履歴
+        <button class="btn ghost" id="btnCsv" hidden style="padding:2px 8px;font-size:.85rem">CSVで保存</button></h2>
+      <div id="history"></div>
+    </div>
+  </section>
+
+  <!-- 設定 -->
+  <section id="tab-settings" hidden>
+    <div class="panel">
+      <h2>タイマー</h2>
+      <div class="formgrid">
+        <div><label for="sFocus">集中（分）</label><input type="number" id="sFocus" min="1" max="180"></div>
+        <div><label for="sShort">小休憩（分）</label><input type="number" id="sShort" min="1" max="60"></div>
+        <div><label for="sLong">長休憩（分）</label><input type="number" id="sLong" min="1" max="90"></div>
+        <div><label for="sEvery">長休憩までの集中回数</label><input type="number" id="sEvery" min="2" max="10"></div>
+        <div class="full"><label class="check"><input type="checkbox" id="sAuto"> 集中が終わったら休憩を自動で始める</label></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>目標と科目</h2>
+      <div class="formgrid">
+        <div><label for="sGoal">週の目標（時間）</label><input type="number" id="sGoal" min="1" max="100"></div>
+        <div class="full"><label for="sSubjects">科目（1行に1つ）</label><textarea id="sSubjects" rows="5"></textarea></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>背景アニメーションと花火</h2>
+      <div class="formgrid">
+        <div><label for="sBgFocus">集中中の背景</label><select id="sBgFocus"><option value="snow">マリンスノーとクラゲ</option><option value="glass">窓の雨</option></select></div>
+        <div><label for="sBgBreak">休憩中の背景</label><select id="sBgBreak"><option value="fire">夜空の花火</option><option value="same">集中中と同じ</option></select></div>
+        <div class="full"><label for="sBgSpeed">動きの速さ</label><div class="range-row"><input type="range" id="sBgSpeed" min="10" max="150" step="5"><span id="sBgSpeedOut" style="min-width:3em;text-align:right">50%</span></div></div>
+        <div class="full"><label class="check"><input type="checkbox" id="sFireworks"> 集中が終わったら花火を上げる（どの表示でも有効）</label></div>
+        <div class="full" style="font-size:.82rem;color:var(--sub)">背景アニメーションは、右上の表示切り替えで「アニメ」を選ぶと表示されます。</div>
+        <div class="full"><button class="btn primary" id="sSave" style="--accent:var(--focus)">設定を保存</button></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>バックアップ</h2>
+      <div class="formgrid">
+        <div class="full" style="font-size:.85rem;color:var(--sub)">記録・タスク・設定をファイルに書き出したり、別の端末やブラウザに取り込んだりできます。取り込みは既存の記録に追加され、同じ記録は重複しません。</div>
+        <div><button class="btn" id="btnExport" style="width:100%">書き出す（JSON）</button></div>
+        <div><button class="btn" id="btnImport" style="width:100%">取り込む</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="sync"></div>
+</div>
+<aside id="taskDrawer" class="drawer" aria-label="タスク" aria-hidden="true">
+  <div class="task-head"><h2 style="margin:0">タスク</h2>
+    <span style="display:flex;gap:4px;align-items:center"><button class="btn ghost" id="clearDone" style="padding:2px 8px;font-size:.85rem">完了済みを消す</button>
+    <button class="btn ghost" id="closeDrawer" aria-label="タスクを閉じる" style="padding:2px 10px;font-size:1.1rem">✕</button></span></div>
+  <div id="taskList"></div>
+  <button class="addtask" id="addTask">＋ タスクを追加</button>
+  <div class="task-foot" id="taskFoot"></div>
+  <div id="noTaskSubject"><div class="sub-lbl">タスク未選択時の科目</div><div class="chips" id="subjectChips"></div></div>
+  <div class="sub-lbl">今回のメモ</div>
+  <input type="text" id="memo" maxlength="120" placeholder="例：問3まで、仕訳20問">
+</aside>
+<div id="drawerScrim"></div>
+<div id="lookFade" aria-hidden="true"></div>
+<div id="toast" role="status"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
