@@ -1,0 +1,14 @@
+{
+  "name": "focus-timer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9",
+    "vitest": "^4.1.11"
+  }
+}
