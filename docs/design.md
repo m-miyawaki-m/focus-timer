@@ -29,7 +29,7 @@
 | `src/ui/` | 画面: `timer-view.js` タイマー、`tasks-view.js` タスク、`stats-view.js` 記録、`settings-view.js` 設定、`look.js` 見た目・自動非表示、`background.js` 背景・花火、`feedback.js` トースト・音、`dom.js` 小さな道具 |
 | `sw.js` | キャッシュ（`CACHE` の名前を変えると古いキャッシュを消す） |
 | `manifest.webmanifest`・`icon-*.png` | PWA の設定とアイコン |
-| `test/` | vitest（`core/` と `store.js`） |
+| `test/` | vitest（`core/`・`store.js`・`sw.js`） |
 
 ### 1.2 つなぎ方
 
@@ -201,7 +201,7 @@
 
 ## 9. オフライン（Service Worker）
 
-- 入れたときに、ページ・CSS・`src/` の JS すべて・manifest・アイコンをキャッシュする（`CACHE` = `focus-timer-v3`）。
+- 入れたときに、ページ・CSS・`src/` の JS すべて・manifest・アイコンをキャッシュする（`CACHE` = `focus-timer-v3`）。ブラウザの HTTP キャッシュに残った古いファイルを入れないよう、取り直す（`cache: 'reload'`）。
 - ページ（画面を開く要求）: ネットを先に使い、取れたらキャッシュを入れ替える。つながらなければキャッシュ。
 - それ以外（同じサイトのファイルと Google Fonts）: キャッシュを先に使い、無ければ取ってキャッシュする。
   - そのため CSS・JS を変えたときは `CACHE` の名前を変えないと、入れてある端末に届かない。

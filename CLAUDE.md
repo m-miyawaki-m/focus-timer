@@ -23,7 +23,7 @@
 
 ## テスト
 
-- `npm test`（vitest。`core/` と `store.js`）、整形の確認は `npx prettier --check .`（直すときは `npm run format`）。
+- `npm test`（vitest。`core/`・`store.js`・`sw.js`）、整形の確認は `npx prettier --check .`（直すときは `npm run format`）。
 - 計算を変えたら `test/` も直す。画面の動きは作業用のサーバーで開いて確かめる。テストは今の動きを確かめるものだけ。機能を消したらテストも消す。
 - 確かめたことは PR の本文に書く。スマホでしか確かめられないこと（ホーム画面・音など）はユーザーに頼む。
 

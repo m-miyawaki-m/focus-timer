@@ -29,7 +29,8 @@ self.addEventListener('install', (e) => {
   e.waitUntil(
     caches
       .open(CACHE)
-      .then((c) => c.addAll(SHELL))
+      // HTTP のキャッシュに残った古いファイルを入れないよう、取り直す
+      .then((c) => c.addAll(SHELL.map((u) => new Request(u, { cache: 'reload' }))))
       .then(() => self.skipWaiting()),
   );
 });
@@ -51,9 +52,7 @@ self.addEventListener('fetch', (e) => {
       fetch(req)
         .then((r) => {
           const c = r.clone();
-          caches
-            .open(CACHE)
-            .then((x) => x.put('./index.html', './style.css', './config.js', './app.js', c));
+          caches.open(CACHE).then((x) => x.put('./index.html', c));
           return r;
         })
         .catch(() => caches.match('./index.html')),
