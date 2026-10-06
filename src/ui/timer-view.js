@@ -180,16 +180,32 @@ export function renderTimer() {
   ctx.updateIdle();
   $('tab-timer').dataset.mode = t.mode;
   ctx.pillText();
-  $('modeLabel').textContent = t.running ? (t.mode === 'focus' ? 'Focusing' : 'On break') : t.remainingMs !== null ? 'Paused' : 'Ready';
+  $('modeLabel').textContent = t.running
+    ? t.mode === 'focus'
+      ? 'Focusing'
+      : 'On break'
+    : t.remainingMs !== null
+      ? 'Paused'
+      : 'Ready';
   const every = TM.longEvery(settings);
   const done = (t.cycle || 0) % every;
-  $('cycleDots').innerHTML = Array.from({ length: every }, (_, i) => '<i class="' + (i < done ? 'done' : '') + '"></i>').join('');
+  $('cycleDots').innerHTML = Array.from(
+    { length: every },
+    (_, i) => '<i class="' + (i < done ? 'done' : '') + '"></i>',
+  ).join('');
   $('cycleDots').setAttribute('aria-label', every + '回中' + done + '回完了');
   const started = t.running || t.remainingMs !== null;
   const lbl = t.running ? '一時停止' : started ? '再開' : '開始';
   $('dialBtn').setAttribute('aria-label', lbl + '（タイマーを押して切り替え）');
   const paused = !t.running && t.remainingMs !== null;
-  $('icoPath').setAttribute('d', t.running ? 'M12 7a5 5 0 1 0 0.001 0z' : paused ? 'M7 5h3.5v14H7zM13.5 5H17v14h-3.5z' : 'M8 5.5v13l10.5-6.5z');
+  $('icoPath').setAttribute(
+    'd',
+    t.running
+      ? 'M12 7a5 5 0 1 0 0.001 0z'
+      : paused
+        ? 'M7 5h3.5v14H7zM13.5 5H17v14h-3.5z'
+        : 'M8 5.5v13l10.5-6.5z',
+  );
   document.querySelector('.state').classList.toggle('live', t.running);
   document.body.dataset.mode = t.mode;
   ctx.applyLook();

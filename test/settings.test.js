@@ -48,18 +48,21 @@ describe('settings', () => {
   });
 
   it('範囲の外は決まった初期値、科目が空なら初期の科目、背景は知らない値なら初期', () => {
-    const s = settingsFromForm({}, {
-      ...FORM,
-      focus: '999',
-      short: '0',
-      long: '-1',
-      longEvery: '1',
-      weeklyGoalH: '200',
-      subjects: '\n \n',
-      bgFocus: 'x',
-      bgBreak: 'x',
-      bgSpeed: '5',
-    });
+    const s = settingsFromForm(
+      {},
+      {
+        ...FORM,
+        focus: '999',
+        short: '0',
+        long: '-1',
+        longEvery: '1',
+        weeklyGoalH: '200',
+        subjects: '\n \n',
+        bgFocus: 'x',
+        bgBreak: 'x',
+        bgSpeed: '5',
+      },
+    );
     expect(s).toMatchObject({
       focus: 25,
       short: 5,

@@ -52,14 +52,20 @@ background.init(ctx);
 
 /* ---------- タブ ---------- */
 function showTab(name) {
-  document.querySelectorAll('nav button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.tab === name)));
+  document
+    .querySelectorAll('nav button')
+    .forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.tab === name)));
   ['timer', 'log', 'settings'].forEach((n) => ($('tab-' + n).hidden = n !== name));
   if (name === 'settings') settingsView.renderSettings();
 }
 // 開いているタブのボタンをもう一度押すとタイマーに戻る
-document.querySelectorAll('nav button').forEach(
-  (b) => (b.onclick = () => showTab(b.getAttribute('aria-pressed') === 'true' ? 'timer' : b.dataset.tab)),
-);
+document
+  .querySelectorAll('nav button')
+  .forEach(
+    (b) =>
+      (b.onclick = () =>
+        showTab(b.getAttribute('aria-pressed') === 'true' ? 'timer' : b.dataset.tab)),
+  );
 $('brandBtn').onclick = () => showTab('timer');
 
 look.applyLook();

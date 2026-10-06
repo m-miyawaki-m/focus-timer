@@ -11,14 +11,33 @@ export function csvText(sessions) {
     .slice()
     .sort((a, b) => a.start - b.start)
     .forEach((s) =>
-      rows.push([dayKey(s.start), hm(s.start), hm(s.end), s.min, s.subject, s.task || '', s.memo || '', s.manual ? '1' : '']),
+      rows.push([
+        dayKey(s.start),
+        hm(s.start),
+        hm(s.end),
+        s.min,
+        s.subject,
+        s.task || '',
+        s.memo || '',
+        s.manual ? '1' : '',
+      ]),
     );
-  return '\ufeff' + rows.map((r) => r.map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+  return (
+    '\ufeff' +
+    rows.map((r) => r.map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n')
+  );
 }
 
 export function backupJson({ settings, months, tasks }, now) {
   return JSON.stringify(
-    { app: 'focus-timer', version: 1, exportedAt: new Date(now).toISOString(), settings, months, tasks },
+    {
+      app: 'focus-timer',
+      version: 1,
+      exportedAt: new Date(now).toISOString(),
+      settings,
+      months,
+      tasks,
+    },
     null,
     1,
   );
@@ -31,7 +50,8 @@ export function parseBackup(text) {
   } catch (err) {
     return { ok: false, error: 'json' };
   }
-  if (!d || d.app !== 'focus-timer' || typeof d.months !== 'object') return { ok: false, error: 'app' };
+  if (!d || d.app !== 'focus-timer' || typeof d.months !== 'object')
+    return { ok: false, error: 'app' };
   return { ok: true, data: d };
 }
 
@@ -43,7 +63,10 @@ export function mergeBackup(cur, d) {
     if (!/^\d{4}-\d{2}$/.test(k) || !Array.isArray(arr)) return;
     const have = months[k] || [];
     const ids = new Set(have.map((x) => x.id));
-    const add = arr.filter((x) => x && x.id && typeof x.start === 'number' && typeof x.min === 'number' && !ids.has(x.id));
+    const add = arr.filter(
+      (x) =>
+        x && x.id && typeof x.start === 'number' && typeof x.min === 'number' && !ids.has(x.id),
+    );
     if (add.length) {
       months[k] = [...have, ...add];
       added += add.length;
@@ -64,7 +87,8 @@ export function mergeBackup(cur, d) {
   }
 
   let settings = cur.settings;
-  if (d.settings && typeof d.settings === 'object') settings = { ...DEFAULTS, ...settings, ...d.settings };
+  if (d.settings && typeof d.settings === 'object')
+    settings = { ...DEFAULTS, ...settings, ...d.settings };
 
   return { settings, months, tasks, added, tAdded };
 }

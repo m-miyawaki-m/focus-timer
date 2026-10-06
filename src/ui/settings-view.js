@@ -33,7 +33,14 @@ export function init(c) {
 
   $('btnExport').onclick = () => {
     const { settings, months, tasks } = S();
-    if (saveFile('focus-timer-backup-' + dayKey(Date.now()) + '.json', backupJson({ settings, months, tasks }, Date.now()), 'application/json')) ctx.toast('書き出しました');
+    if (
+      saveFile(
+        'focus-timer-backup-' + dayKey(Date.now()) + '.json',
+        backupJson({ settings, months, tasks }, Date.now()),
+        'application/json',
+      )
+    )
+      ctx.toast('書き出しました');
   };
   $('btnImport').onclick = () => $('importFile').click();
   $('importFile').onchange = async (e) => {
@@ -42,7 +49,11 @@ export function init(c) {
     if (!f) return;
     const r = parseBackup(await f.text());
     if (!r.ok) {
-      ctx.toast(r.error === 'json' ? 'ファイルを読み込めませんでした（JSON形式ではありません）' : 'このアプリのバックアップファイルではありません');
+      ctx.toast(
+        r.error === 'json'
+          ? 'ファイルを読み込めませんでした（JSON形式ではありません）'
+          : 'このアプリのバックアップファイルではありません',
+      );
       return;
     }
     const { added, tAdded } = ctx.store.importBackup(r.data);

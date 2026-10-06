@@ -17,7 +17,9 @@ export function init(c) {
   look = ctx.store.getLook();
   if (!LOOKS.includes(look)) look = 'simple';
 
-  ['mousemove', 'keydown', 'wheel'].forEach((ev) => document.addEventListener(ev, wake, { passive: true }));
+  ['mousemove', 'keydown', 'wheel'].forEach((ev) =>
+    document.addEventListener(ev, wake, { passive: true }),
+  );
   // 消えているときのタッチは、戻すだけでタイマーは止めない
   document.addEventListener(
     'pointerdown',
@@ -102,11 +104,15 @@ export function applyLook() {
 export function pillText() {
   const mode = ctx.store.state.t.mode;
   $('modePill').textContent = MODE_LABEL[mode] + '：' + LOOK_LBL[look];
-  $('modePill').setAttribute('aria-label', MODE_LABEL[mode] + '。表示：' + LOOK_LBL[look] + '（押すと切り替え）');
+  $('modePill').setAttribute(
+    'aria-label',
+    MODE_LABEL[mode] + '。表示：' + LOOK_LBL[look] + '（押すと切り替え）',
+  );
 }
 
 function lookColor() {
   if (look === 'anim') return ctx.sceneColor(sceneNow());
-  if (look === 'grad') return { focus: '#24357F', short: '#1F8AA6', long: '#8A7ADB' }[ctx.store.state.t.mode];
+  if (look === 'grad')
+    return { focus: '#24357F', short: '#1F8AA6', long: '#8A7ADB' }[ctx.store.state.t.mode];
   return getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#EEF1F5';
 }

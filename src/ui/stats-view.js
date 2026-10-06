@@ -1,6 +1,14 @@
 /* 記録のタブ: 数字・直近 14 日のグラフ・科目別・履歴・手動で追加・CSV */
 import { dayKey, monthKey, hm, fmt, genId } from '../core/time.js';
-import { allSessions, summarize, lastDays, subjectOrder, weekBySubject, historyGroups, colorOf } from '../core/stats.js';
+import {
+  allSessions,
+  summarize,
+  lastDays,
+  subjectOrder,
+  weekBySubject,
+  historyGroups,
+  colorOf,
+} from '../core/stats.js';
 import { csvText } from '../core/backup.js';
 import { $, esc, saveFile } from './dom.js';
 
@@ -21,14 +29,27 @@ export function init(c) {
     const [y, mo, da] = d.split('-').map(Number);
     const [hh, mm] = tm.split(':').map(Number);
     const st = new Date(y, mo - 1, da, hh, mm).getTime();
-    ctx.store.addSession({ id: genId(), start: st, end: st + min * 60000, min, subject: $('mSubject').value, memo: $('mMemo').value.trim(), manual: true });
+    ctx.store.addSession({
+      id: genId(),
+      start: st,
+      end: st + min * 60000,
+      min,
+      subject: $('mSubject').value,
+      memo: $('mMemo').value.trim(),
+      manual: true,
+    });
     $('mMemo').value = '';
     ctx.toast(fmt(min) + 'を追加しました');
   };
   const n = new Date();
   $('mDate').value = dayKey(n);
   $('mTime').value = hm(n);
-  $('btnCsv').onclick = () => saveFile('study-log-' + dayKey(Date.now()) + '.csv', csvText(allSessions(S().months)), 'text/csv');
+  $('btnCsv').onclick = () =>
+    saveFile(
+      'study-log-' + dayKey(Date.now()) + '.csv',
+      csvText(allSessions(S().months)),
+      'text/csv',
+    );
   $('btnCsv').hidden = false;
 }
 
@@ -51,11 +72,31 @@ export function renderStats() {
   const totals = per.map((m) => Object.values(m).reduce((a, b) => a + b, 0));
   const max = Math.max(60, ...totals);
   const top = Math.ceil(max / 60) * 60;
-  const W = 560, H = 190, L = 34, B = 24, Tp = 8, bw = (W - L) / 14;
+  const W = 560,
+    H = 190,
+    L = 34,
+    B = 24,
+    Tp = 8,
+    bw = (W - L) / 14;
   let svg = '';
   for (let g = 0; g <= top; g += Math.max(60, Math.ceil(top / 4 / 60) * 60)) {
     const y = H - B - (g / top) * (H - B - Tp);
-    svg += '<line x1="' + L + '" x2="' + W + '" y1="' + y + '" y2="' + y + '" stroke="var(--line)"/><text x="' + (L - 6) + '" y="' + (y + 4) + '" text-anchor="end">' + g / 60 + 'h</text>';
+    svg +=
+      '<line x1="' +
+      L +
+      '" x2="' +
+      W +
+      '" y1="' +
+      y +
+      '" y2="' +
+      y +
+      '" stroke="var(--line)"/><text x="' +
+      (L - 6) +
+      '" y="' +
+      (y + 4) +
+      '" text-anchor="end">' +
+      g / 60 +
+      'h</text>';
   }
   const order = subjectOrder(settings.subjects, all);
   per.forEach((m, i) => {
@@ -66,20 +107,59 @@ export function renderStats() {
       if (!m[sub]) return;
       const h = (m[sub] / top) * (H - B - Tp);
       y -= h;
-      svg += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + col(sub) + '"><title>' + sub + ' ' + fmt(m[sub]) + '</title></rect>';
+      svg +=
+        '<rect x="' +
+        x +
+        '" y="' +
+        y +
+        '" width="' +
+        w +
+        '" height="' +
+        h +
+        '" fill="' +
+        col(sub) +
+        '"><title>' +
+        sub +
+        ' ' +
+        fmt(m[sub]) +
+        '</title></rect>';
     });
     const date = days[i].date;
     const lbl = date.getMonth() + 1 + '/' + date.getDate();
-    svg += '<text x="' + (x + w / 2) + '" y="' + (H - 6) + '" text-anchor="middle"' + (i === 13 ? ' style="font-weight:700;fill:var(--ink)"' : '') + '>' + lbl + '</text>';
+    svg +=
+      '<text x="' +
+      (x + w / 2) +
+      '" y="' +
+      (H - 6) +
+      '" text-anchor="middle"' +
+      (i === 13 ? ' style="font-weight:700;fill:var(--ink)"' : '') +
+      '>' +
+      lbl +
+      '</text>';
   });
   $('chart').innerHTML = svg;
-  $('legend').innerHTML = order.map((s) => '<span><i style="background:' + col(s) + '"></i>' + esc(s) + '</span>').join('');
+  $('legend').innerHTML = order
+    .map((s) => '<span><i style="background:' + col(s) + '"></i>' + esc(s) + '</span>')
+    .join('');
 
   // 科目別（今週）
   const ent = weekBySubject(all, now);
   const bmax = Math.max(1, ...ent.map((e) => e[1]));
   $('breakdown').innerHTML = ent.length
-    ? ent.map(([s, m]) => '<div class="brk"><span>' + esc(s) + '</span><div class="track"><span style="width:' + (m / bmax) * 100 + '%;background:' + col(s) + '"></span></div><span class="n">' + fmt(m) + '</span></div>').join('')
+    ? ent
+        .map(
+          ([s, m]) =>
+            '<div class="brk"><span>' +
+            esc(s) +
+            '</span><div class="track"><span style="width:' +
+            (m / bmax) * 100 +
+            '%;background:' +
+            col(s) +
+            '"></span></div><span class="n">' +
+            fmt(m) +
+            '</span></div>',
+        )
+        .join('')
     : '<div class="empty">今週の記録はまだありません。タイマーで集中を1回終えると、ここに積み上がります。</div>';
 
   // 履歴
@@ -96,14 +176,34 @@ export function renderStats() {
     const daySum = arr.reduce((a, b) => a + b.min, 0);
     const [y, mo, da] = dk.split('-');
     const wd = '日月火水木金土'[new Date(+y, +mo - 1, +da).getDay()];
-    box.innerHTML = '<h3><span>' + +mo + '月' + +da + '日（' + wd + '）</span><span>' + fmt(daySum) + '</span></h3>';
+    box.innerHTML =
+      '<h3><span>' +
+      +mo +
+      '月' +
+      +da +
+      '日（' +
+      wd +
+      '）</span><span>' +
+      fmt(daySum) +
+      '</span></h3>';
     arr.forEach((s) => {
       const r = document.createElement('div');
       r.className = 'row';
       r.innerHTML =
-        '<span class="tm">' + hm(s.start) + '</span><span><span style="display:inline-flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:' + col(s.subject) + ';display:inline-block"></i>' + esc(s.subject) + (s.manual ? '（手動）' : '') + '</span>' +
-        (s.task || s.memo ? '<span class="memo">' + esc([s.task, s.memo].filter(Boolean).join(' ／ ')) + '</span>' : '') +
-        '</span><span>' + fmt(s.min) + '</span>';
+        '<span class="tm">' +
+        hm(s.start) +
+        '</span><span><span style="display:inline-flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:' +
+        col(s.subject) +
+        ';display:inline-block"></i>' +
+        esc(s.subject) +
+        (s.manual ? '（手動）' : '') +
+        '</span>' +
+        (s.task || s.memo
+          ? '<span class="memo">' + esc([s.task, s.memo].filter(Boolean).join(' ／ ')) + '</span>'
+          : '') +
+        '</span><span>' +
+        fmt(s.min) +
+        '</span>';
       const del = document.createElement('button');
       del.className = 'del';
       del.textContent = '削除';

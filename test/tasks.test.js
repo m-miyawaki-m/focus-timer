@@ -12,7 +12,15 @@ import {
   footSummary,
 } from '../src/core/tasks.js';
 
-const tk = (id, extra = {}) => ({ id, title: id, subject: '簿記論', est: 2, done: 0, completed: false, ...extra });
+const tk = (id, extra = {}) => ({
+  id,
+  title: id,
+  subject: '簿記論',
+  est: 2,
+  done: 0,
+  completed: false,
+  ...extra,
+});
 
 describe('tasks', () => {
   it('activeTask は選んでいる未完了のタスク', () => {
@@ -39,9 +47,14 @@ describe('tasks', () => {
   });
 
   it('updateTask は名前・科目・見積もり・実績（99 まで）を変える', () => {
-    expect(updateTask([tk('a'), tk('b')], 'b', { title: 'B', subject: '応用情報', est: 4, done: 120 })[1]).toEqual(
-      tk('b', { title: 'B', subject: '応用情報', est: 4, done: 99 }),
-    );
+    expect(
+      updateTask([tk('a'), tk('b')], 'b', {
+        title: 'B',
+        subject: '応用情報',
+        est: 4,
+        done: 120,
+      })[1],
+    ).toEqual(tk('b', { title: 'B', subject: '応用情報', est: 4, done: 99 }));
   });
 
   it('removeTask・toggleCompleted・incrementDone・clearCompleted', () => {
@@ -55,7 +68,11 @@ describe('tasks', () => {
   });
 
   it('footSummary は残りの数と、未完了の見積もり − 実績', () => {
-    const list = [tk('a', { est: 3, done: 1 }), tk('b', { est: 2, done: 4 }), tk('c', { est: 5, done: 0, completed: true })];
+    const list = [
+      tk('a', { est: 3, done: 1 }),
+      tk('b', { est: 2, done: 4 }),
+      tk('c', { est: 5, done: 0, completed: true }),
+    ];
     expect(footSummary(list)).toEqual({ left: 2, doneSum: 5, estSum: 10, rem: 2 });
   });
 });

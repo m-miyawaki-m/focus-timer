@@ -2,7 +2,21 @@
 import { $, RM } from './dom.js';
 
 let ctx;
-const bg = { cv: null, cx: null, W: 0, H: 0, d: 1, scene: 'none', parts: [], sparks: [], next: 0, cele: 0, celeN: 0, running: false, t0: 0 };
+const bg = {
+  cv: null,
+  cx: null,
+  W: 0,
+  H: 0,
+  d: 1,
+  scene: 'none',
+  parts: [],
+  sparks: [],
+  next: 0,
+  cele: 0,
+  celeN: 0,
+  running: false,
+  t0: 0,
+};
 const BGC = { glass: '#16222f', snow: '#040f1f', fire: '#0a0f24' };
 const rnd = (a, b) => a + Math.random() * (b - a);
 
@@ -27,13 +41,30 @@ function bgSize() {
 }
 
 export function bgInit() {
-  const W = bg.W, H = bg.H, d = bg.d;
+  const W = bg.W,
+    H = bg.H,
+    d = bg.d;
   bg.parts = [];
   const n = { glass: 35, snow: 90, fire: 70, none: 0 }[bg.scene];
-  for (let i = 0; i < n; i++) bg.parts.push({ x: rnd(0, W), y: rnd(0, H), r: rnd(1, 4), v: rnd(0.3, 1), p: rnd(0, 6.28), hold: rnd(0, 200) });
+  for (let i = 0; i < n; i++)
+    bg.parts.push({
+      x: rnd(0, W),
+      y: rnd(0, H),
+      r: rnd(1, 4),
+      v: rnd(0.3, 1),
+      p: rnd(0, 6.28),
+      hold: rnd(0, 200),
+    });
   if (bg.scene === 'glass')
     for (let i = 0; i < 26; i++)
-      bg.parts.push({ bokeh: 1, x: rnd(0, W), y: rnd(0, H), r: rnd(15, 45) * d, c: ['#f2b35a', '#e86b6b', '#6bb5e8'][i % 3], p: rnd(0, 6.28) });
+      bg.parts.push({
+        bokeh: 1,
+        x: rnd(0, W),
+        y: rnd(0, H),
+        r: rnd(15, 45) * d,
+        c: ['#f2b35a', '#e86b6b', '#6bb5e8'][i % 3],
+        p: rnd(0, 6.28),
+      });
   if (bg.scene !== 'none') {
     bg.cx.fillStyle = BGC[bg.scene];
     bg.cx.fillRect(0, 0, W, H);
@@ -60,14 +91,26 @@ function bgLoop() {
 }
 
 function burst(big) {
-  const W = bg.W, H = bg.H, d = bg.d, x = rnd(W * 0.15, W * 0.85), y = rnd(H * 0.12, H * 0.42);
+  const W = bg.W,
+    H = bg.H,
+    d = bg.d,
+    x = rnd(W * 0.15, W * 0.85),
+    y = rnd(H * 0.12, H * 0.42);
   const hues = ['255,190,120', '255,140,160', '150,200,255', '200,170,255', '255,230,150'];
   const c = hues[Math.floor(rnd(0, hues.length))];
   const n = big ? 110 : 70;
   for (let i = 0; i < n; i++) {
     const a = (i / n) * 6.283 + rnd(-0.05, 0.05);
     const v = rnd(0.6, 1) * (big ? 2.6 : 1.8) * d;
-    bg.sparks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, c, decay: rnd(0.006, 0.01) });
+    bg.sparks.push({
+      x,
+      y,
+      vx: Math.cos(a) * v,
+      vy: Math.sin(a) * v,
+      life: 1,
+      c,
+      decay: rnd(0.006, 0.01),
+    });
   }
 }
 
@@ -81,7 +124,10 @@ export function celebrate() {
 }
 
 function bgDraw(now) {
-  const cx = bg.cx, W = bg.W, H = bg.H, d = bg.d;
+  const cx = bg.cx,
+    W = bg.W,
+    H = bg.H,
+    d = bg.d;
   const dt = Math.min(50, now - bg.t0) / 16;
   bg.t0 = now;
   const s = dt * spd();
@@ -170,7 +216,8 @@ function bgDraw(now) {
         const tx = jx - jr * 0.8 + i * jr * 0.32;
         cx.beginPath();
         cx.moveTo(tx, jy);
-        for (let y = 0; y < jr * 2.6; y += 4 * d) cx.lineTo(tx + Math.sin(y / (22 * d) + ph * 0.5 + i) * 4 * d, jy + y);
+        for (let y = 0; y < jr * 2.6; y += 4 * d)
+          cx.lineTo(tx + Math.sin(y / (22 * d) + ph * 0.5 + i) * 4 * d, jy + y);
         cx.stroke();
       }
     }

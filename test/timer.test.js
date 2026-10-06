@@ -30,7 +30,11 @@ describe('timer', () => {
       cycle: 0,
       subject: null,
     });
-    expect(normalizeTimer({ cycle: 3, taskId: 'x' })).toMatchObject({ cycle: 3, taskId: 'x', mode: 'focus' });
+    expect(normalizeTimer({ cycle: 3, taskId: 'x' })).toMatchObject({
+      cycle: 3,
+      taskId: 'x',
+      mode: 'focus',
+    });
   });
 
   it('dur は設定の分。0 や数でない値は初期値', () => {
@@ -46,7 +50,12 @@ describe('timer', () => {
 
   it('始める・止める・再開で、動いた時間だけを数える', () => {
     let t = start(normalizeTimer(null), SET, 1000);
-    expect(t).toMatchObject({ running: true, endAt: 1000 + 25 * MIN, resumedAt: 1000, startAt: 1000 });
+    expect(t).toMatchObject({
+      running: true,
+      endAt: 1000 + 25 * MIN,
+      resumedAt: 1000,
+      startAt: 1000,
+    });
     expect(remaining(t, SET, 1000 + MIN)).toBe(24 * MIN);
 
     t = pause(t, 1000 + MIN);
@@ -69,14 +78,39 @@ describe('timer', () => {
   });
 
   it('resetTo はモードの最初に戻し、cycle・taskId は残す', () => {
-    const t = resetTo({ ...normalizeTimer({ cycle: 2, taskId: 'x' }), running: true, accMs: 5, startAt: 9, resumedAt: 9, remainingMs: 3 }, 'short');
-    expect(t).toMatchObject({ mode: 'short', running: false, remainingMs: null, accMs: 0, startAt: 0, resumedAt: 0, cycle: 2, taskId: 'x' });
+    const t = resetTo(
+      {
+        ...normalizeTimer({ cycle: 2, taskId: 'x' }),
+        running: true,
+        accMs: 5,
+        startAt: 9,
+        resumedAt: 9,
+        remainingMs: 3,
+      },
+      'short',
+    );
+    expect(t).toMatchObject({
+      mode: 'short',
+      running: false,
+      remainingMs: null,
+      accMs: 0,
+      startAt: 0,
+      resumedAt: 0,
+      cycle: 2,
+      taskId: 'x',
+    });
   });
 
   it('afterFocus は cycle を足し、回数ごとに長休憩', () => {
-    expect(afterFocus(normalizeTimer({ cycle: 0 }), SET)).toMatchObject({ cycle: 1, mode: 'short' });
+    expect(afterFocus(normalizeTimer({ cycle: 0 }), SET)).toMatchObject({
+      cycle: 1,
+      mode: 'short',
+    });
     expect(afterFocus(normalizeTimer({ cycle: 3 }), SET)).toMatchObject({ cycle: 4, mode: 'long' });
-    expect(afterFocus(normalizeTimer({ cycle: 1 }), { ...SET, longEvery: 2 })).toMatchObject({ cycle: 2, mode: 'long' });
+    expect(afterFocus(normalizeTimer({ cycle: 1 }), { ...SET, longEvery: 2 })).toMatchObject({
+      cycle: 2,
+      mode: 'long',
+    });
   });
 
   it('閉じている間に時間を過ぎていたら isDue、finishRun で終わりまでを数える', () => {
@@ -114,6 +148,8 @@ describe('timer', () => {
 
   it('focusSession は startAt が無ければ終わりから動いた時間を引いて始まりにする', () => {
     const t = { ...normalizeTimer(null), accMs: 120000, startAt: 0 };
-    expect(focusSession(t, 500000, { task: null, subject: 's', memo: '', id: 'i' }).start).toBe(380000);
+    expect(focusSession(t, 500000, { task: null, subject: 's', memo: '', id: 'i' }).start).toBe(
+      380000,
+    );
   });
 });

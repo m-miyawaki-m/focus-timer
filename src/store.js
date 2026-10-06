@@ -22,7 +22,12 @@ export function createStore(storage) {
     } catch (e) {}
   };
 
-  const state = { settings: { ...DEFAULTS }, months: {}, tasks: [], t: normalizeTimer(get(LS_TIMER)) };
+  const state = {
+    settings: { ...DEFAULTS },
+    months: {},
+    tasks: [],
+    t: normalizeTimer(get(LS_TIMER)),
+  };
   const load = (d) => {
     state.settings = { ...DEFAULTS, ...(d.settings || {}) };
     state.months = d.months || {};
@@ -38,7 +43,10 @@ export function createStore(storage) {
 
   function saveData() {
     try {
-      storage.setItem(LS_DATA, JSON.stringify({ settings: state.settings, months: state.months, tasks: state.tasks }));
+      storage.setItem(
+        LS_DATA,
+        JSON.stringify({ settings: state.settings, months: state.months, tasks: state.tasks }),
+      );
       saveResult('');
     } catch (e) {
       saveResult(SAVE_FAILED);
@@ -61,7 +69,8 @@ export function createStore(storage) {
     saveTimer: () => set(LS_TIMER, state.t),
     // タスクを選んでいないときの科目。科目に無ければ先頭にする（保存はしない）
     currentSubject() {
-      if (!state.settings.subjects.includes(state.t.subject)) state.t.subject = state.settings.subjects[0];
+      if (!state.settings.subjects.includes(state.t.subject))
+        state.t.subject = state.settings.subjects[0];
       return state.t.subject;
     },
 

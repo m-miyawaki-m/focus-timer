@@ -1,13 +1,13 @@
 # 集中タイマー 現状の設計書
 
-- 作成日: 2026-10-06（HTML を index.html・style.css・config.js・app.js に分けた時点）
+- 作成日: 2026-10-06。更新: 2026-10-06（ソースを src/ の ES モジュールに分けた）
 - 位置づけ: 今の実装をまとめた、ただ 1 つの設計書。食い違うときは本書が正（コードと合わなければ本書を直す）。
 - 対象: スマホ（Android の Chrome、ホーム画面に入れて使う）と PC のブラウザ。
 
 ## 1. 全体の構成
 
 ```
-ブラウザ（index.html + style.css + config.js + app.js）
+ブラウザ（index.html + style.css + src/ の ES モジュール）
    ├─ localStorage（記録・タスク・設定・タイマーの状態。端末ごと、同期なし）
    └─ Service Worker（sw.js。オフラインで開けるようにキャッシュ）
 公開: GitHub Pages（静的ファイルをそのまま配る。ビルドなし）
@@ -20,27 +20,23 @@
 
 | ファイル | 中身 |
 |---|---|
-| `index.html` | 画面の構造だけ（タイマー・記録・設定の 3 つのタブ、タスクのドロワー） |
+| `index.html` | 画面の構造だけ（タイマー・記録・設定の 3 つのタブ、タスクのドロワー）。`src/main.js` を ES モジュールで読む |
 | `style.css` | 見た目。ライト／ダーク（`prefers-color-scheme`）、表示の切り替え（`data-look`・`data-scene`）、集中中の自動非表示（`body.idle`） |
-| `config.js` | 設定値（`APP_CONFIG`）: 設定の初期値・科目・科目の色・モード名・localStorage のキー |
-| `app.js` | 処理のすべて（1 つの即時関数）。末尾で Service Worker を登録 |
+| `src/config.js` | 設定値（`APP_CONFIG`）: 設定の初期値・科目・科目の色・モード名・localStorage のキー |
+| `src/main.js` | 起動。状態を読み、画面の部品を `ctx` でつなぎ、0.25 秒ごとに確かめる。タブの切り替え。Service Worker の登録 |
+| `src/store.js` | 状態（設定・記録・タスク・タイマー）を持つ唯一の場所。localStorage の読み書き、別タブの変更 |
+| `src/core/` | DOM を使わない計算（テストの対象）: `time.js` 日付、`timer.js` タイマーの状態、`stats.js` 集計、`tasks.js` タスク、`settings.js` 設定の欄、`backup.js` CSV・JSON |
+| `src/ui/` | 画面: `timer-view.js` タイマー、`tasks-view.js` タスク、`stats-view.js` 記録、`settings-view.js` 設定、`look.js` 見た目・自動非表示、`background.js` 背景・花火、`feedback.js` トースト・音、`dom.js` 小さな道具 |
 | `sw.js` | キャッシュ（`CACHE` の名前を変えると古いキャッシュを消す） |
 | `manifest.webmanifest`・`icon-*.png` | PWA の設定とアイコン |
+| `test/` | vitest（`core/` と `store.js`） |
 
-### 1.2 app.js の区切り
+### 1.2 つなぎ方
 
-| 区切り（コメント） | 中身 |
-|---|---|
-| utils | 日付のキー（`dayKey`: `YYYY-MM-DD`、`monthKey`: `YYYY-MM`）、時間の表示（`fmt`: 「1時間5分」）、ID、週の初め（月曜） |
-| storage | localStorage への保存、別タブでの変更の反映（`storage` イベント） |
-| audio | 終了の音（Web Audio、3 音のチャイム） |
-| timer | 開始・一時停止・リセット・終了・記録 |
-| render: timer / stats | タイマーの表示、記録タブの集計・グラフ・履歴 |
-| tasks | タスクの一覧・編集・ドロワー |
-| events | タブの切り替え、キー操作、手動で追加、設定の保存 |
-| 集中中の自動非表示 | 3 秒操作が無いと周りを隠す |
-| ファイル保存・バックアップ | CSV・JSON の書き出し、JSON の取り込み |
-| 背景アニメーション | canvas の背景（3 つの場面）と花火 |
+- 依存は `ui/` → `store.js` → `core/`・`config.js` の一方向。`core/` は `config.js` と `core/` の中だけを読む。
+- `ui/` どうしは直接読まず、`main.js` が作る `ctx`（`toast`・`celebrate`・`applyLook`・`renderNow`・`renderAll` など）を通して呼ぶ。`ui/dom.js` だけはどこから読んでもよい。
+- 状態を変えるのは `store.js` の関数だけ（例外: タイマーの `taskId`・`subject` は ui が直に変えて `saveTimer()` を呼ぶ）。記録の追加・削除、取り込み、別タブの変更のときは `notify()` で `renderAll()` を呼ぶ。ほかの変更は呼ぶ側が要る所だけ描き直す。
+- `core/` の関数は「今」を引数 `now` で受け取る。
 
 ## 2. 画面
 
@@ -145,7 +141,7 @@
 
 ### 5.3 科目の色
 
-`config.js` の `COLORS`（8 色）を、設定の科目の並び順に割り当てる。設定に無い科目（消した科目の古い記録）は、科目の数の位置の色。
+`src/config.js` の `COLORS`（8 色）を、設定の科目の並び順に割り当てる。設定に無い科目（消した科目の古い記録）は、科目の数の位置の色。
 
 ## 6. 背景アニメーション
 
@@ -176,7 +172,7 @@
 | 動きの速さ | 10〜150% | 50% |
 | 集中が終わったら花火 | ― | オン |
 
-- 初期値は `config.js` の `DEFAULTS`。「設定を保存」を押したときだけ保存する。
+- 初期値は `src/config.js` の `DEFAULTS`。「設定を保存」を押したときだけ保存する。
 - 保存した設定があれば、初期値より保存した値を使う（項目ごと。新しく足した項目は初期値になる）。
 
 ## 8. 保存とバックアップ
@@ -205,7 +201,7 @@
 
 ## 9. オフライン（Service Worker）
 
-- 入れたときに、ページ・CSS・JS・manifest・アイコンをキャッシュする（`CACHE` = `focus-timer-v2`）。
+- 入れたときに、ページ・CSS・`src/` の JS すべて・manifest・アイコンをキャッシュする（`CACHE` = `focus-timer-v3`）。
 - ページ（画面を開く要求）: ネットを先に使い、取れたらキャッシュを入れ替える。つながらなければキャッシュ。
 - それ以外（同じサイトのファイルと Google Fonts）: キャッシュを先に使い、無ければ取ってキャッシュする。
   - そのため CSS・JS を変えたときは `CACHE` の名前を変えないと、入れてある端末に届かない。

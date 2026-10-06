@@ -16,7 +16,9 @@ export function addTask(tasks, { id, title, subject, est }) {
 }
 
 export function updateTask(tasks, id, { title, subject, est, done }) {
-  return tasks.map((x) => (x.id === id ? { ...x, title, subject, est, done: Math.min(MAX_DONE, done) } : x));
+  return tasks.map((x) =>
+    x.id === id ? { ...x, title, subject, est, done: Math.min(MAX_DONE, done) } : x,
+  );
 }
 
 export const removeTask = (tasks, id) => tasks.filter((x) => x.id !== id);

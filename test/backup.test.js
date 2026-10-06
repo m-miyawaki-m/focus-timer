@@ -5,8 +5,24 @@ const at = (y, mo, d, h = 0, mi = 0) => new Date(y, mo - 1, d, h, mi).getTime();
 
 describe('backup', () => {
   it('csvText は BOM 付き・古い順・全部の欄を " で囲み、" は重ねる', () => {
-    const s1 = { id: '1', start: at(2026, 10, 6, 9, 5), end: at(2026, 10, 6, 9, 35), min: 30, subject: '簿記論', memo: 'a"b' };
-    const s2 = { id: '2', start: at(2026, 10, 7, 8), end: at(2026, 10, 7, 8, 10), min: 10, subject: '応用情報', memo: '', task: '過去問', manual: true };
+    const s1 = {
+      id: '1',
+      start: at(2026, 10, 6, 9, 5),
+      end: at(2026, 10, 6, 9, 35),
+      min: 30,
+      subject: '簿記論',
+      memo: 'a"b',
+    };
+    const s2 = {
+      id: '2',
+      start: at(2026, 10, 7, 8),
+      end: at(2026, 10, 7, 8, 10),
+      min: 10,
+      subject: '応用情報',
+      memo: '',
+      task: '過去問',
+      manual: true,
+    };
     expect(csvText([s2, s1])).toBe(
       '\ufeff' +
         [
@@ -36,15 +52,25 @@ describe('backup', () => {
     expect(parseBackup('null')).toEqual({ ok: false, error: 'app' });
     expect(parseBackup('{"app":"other","months":{}}')).toEqual({ ok: false, error: 'app' });
     expect(parseBackup('{"app":"focus-timer"}')).toEqual({ ok: false, error: 'app' });
-    expect(parseBackup('{"app":"focus-timer","months":{}}')).toEqual({ ok: true, data: { app: 'focus-timer', months: {} } });
+    expect(parseBackup('{"app":"focus-timer","months":{}}')).toEqual({
+      ok: true,
+      data: { app: 'focus-timer', months: {} },
+    });
   });
 
   it('mergeBackup は id が無い記録だけ足し、形の違う月・記録は飛ばす', () => {
-    const cur = { settings: { focus: 25, short: 5 }, months: { '2026-10': [{ id: 'a', start: 1, min: 5 }] }, tasks: [] };
+    const cur = {
+      settings: { focus: 25, short: 5 },
+      months: { '2026-10': [{ id: 'a', start: 1, min: 5 }] },
+      tasks: [],
+    };
     const r = mergeBackup(cur, {
       app: 'focus-timer',
       months: {
-        '2026-10': [{ id: 'a', start: 1, min: 5 }, { id: 'b', start: 2, min: 5 }],
+        '2026-10': [
+          { id: 'a', start: 1, min: 5 },
+          { id: 'b', start: 2, min: 5 },
+        ],
         bad: [{ id: 'z', start: 1, min: 1 }],
         '2026-09': [{ id: 'c', start: 3, min: 5 }, { id: 'x' }, null],
       },
@@ -64,7 +90,12 @@ describe('backup', () => {
       {
         app: 'focus-timer',
         months: {},
-        tasks: [{ id: 't0', title: 'dup' }, { id: 'n1', title: 'a' }, { id: 'n2', title: 'b' }, { id: 'n3' }],
+        tasks: [
+          { id: 't0', title: 'dup' },
+          { id: 'n1', title: 'a' },
+          { id: 'n2', title: 'b' },
+          { id: 'n3' },
+        ],
         settings: { focus: 50 },
       },
     );

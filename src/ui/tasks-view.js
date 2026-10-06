@@ -110,10 +110,19 @@ function formEl() {
     .join('');
   f.innerHTML =
     '<div><label for="tfTitle">タスク名</label><input type="text" id="tfTitle" maxlength="60" placeholder="例：簿記論 過去問 第3問"></div>' +
-    '<div><label for="tfSub">科目</label><select id="tfSub">' + opts + '</select></div>' +
-    '<div><label for="tfEst">見積もりポモドーロ数（1回＝' + settings.focus + '分）</label><div class="est"><button type="button" id="tfMinus" aria-label="減らす">−</button><input type="number" id="tfEst" min="1" max="50"><button type="button" id="tfPlus" aria-label="増やす">＋</button><span id="tfMin" style="color:var(--sub);font-size:.85rem"></span></div></div>' +
-    (editing !== 'new' ? '<div><label for="tfDone">実績ポモドーロ数</label><input type="number" id="tfDone" min="0" max="99" style="width:6em"></div>' : '') +
-    '<div class="acts"><span>' + (editing !== 'new' ? '<button class="btn ghost" id="tfDel" style="color:var(--warn)">削除</button>' : '') +
+    '<div><label for="tfSub">科目</label><select id="tfSub">' +
+    opts +
+    '</select></div>' +
+    '<div><label for="tfEst">見積もりポモドーロ数（1回＝' +
+    settings.focus +
+    '分）</label><div class="est"><button type="button" id="tfMinus" aria-label="減らす">−</button><input type="number" id="tfEst" min="1" max="50"><button type="button" id="tfPlus" aria-label="増やす">＋</button><span id="tfMin" style="color:var(--sub);font-size:.85rem"></span></div></div>' +
+    (editing !== 'new'
+      ? '<div><label for="tfDone">実績ポモドーロ数</label><input type="number" id="tfDone" min="0" max="99" style="width:6em"></div>'
+      : '') +
+    '<div class="acts"><span>' +
+    (editing !== 'new'
+      ? '<button class="btn ghost" id="tfDel" style="color:var(--warn)">削除</button>'
+      : '') +
     '</span><span style="display:flex;gap:8px"><button class="btn" id="tfCancel">キャンセル</button><button class="btn primary" id="tfSave" style="--accent:var(--focus)">保存</button></span></div>';
   const ti = f.querySelector('#tfTitle');
   const es = f.querySelector('#tfEst');
@@ -169,7 +178,12 @@ function formEl() {
       // 足したあとの一覧で、選んでいるタスクが無ければ新しいものを選ぶ
       if (!T.activeTask(tasks, S().t.taskId)) S().t.taskId = id;
     } else {
-      tasks = T.updateTask(S().tasks, editing, { title, subject: draft.subject, est, done: draft.done });
+      tasks = T.updateTask(S().tasks, editing, {
+        title,
+        subject: draft.subject,
+        est,
+        done: draft.done,
+      });
     }
     ctx.store.saveTimer();
     closeForm();
@@ -201,11 +215,24 @@ function blocksHtml(tk) {
   let h = '';
   for (let i = 0; i < show; i++) {
     const cls = i < done ? (i < est ? 'on' : 'on over') : '';
-    h += '<i class="' + cls + '"' + (i < done ? ' style="background:' + c + ';border-color:' + c + '"' : '') + '></i>';
+    h +=
+      '<i class="' +
+      cls +
+      '"' +
+      (i < done ? ' style="background:' + c + ';border-color:' + c + '"' : '') +
+      '></i>';
   }
   if (total > MAX) h += '<span class="more">+' + (total - MAX) + '</span>';
-  const lbl = '見積もり' + est + '回中' + done + '回完了' + (done > est ? '（' + (done - est) + '回超過）' : '');
-  return '<div class="blocks" role="img" aria-label="' + lbl + '" title="' + lbl + '">' + h + '</div>';
+  const lbl =
+    '見積もり' +
+    est +
+    '回中' +
+    done +
+    '回完了' +
+    (done > est ? '（' + (done - est) + '回超過）' : '');
+  return (
+    '<div class="blocks" role="img" aria-label="' + lbl + '" title="' + lbl + '">' + h + '</div>'
+  );
 }
 
 export function renderTasks() {
@@ -218,10 +245,19 @@ export function renderTasks() {
       return;
     }
     const r = document.createElement('div');
-    r.className = 'task' + (act && act.id === tk.id ? ' active' : '') + (tk.completed ? ' done' : '');
+    r.className =
+      'task' + (act && act.id === tk.id ? ' active' : '') + (tk.completed ? ' done' : '');
     r.innerHTML =
-      '<button class="chk" aria-label="' + (tk.completed ? '未完了に戻す' : '完了にする') + '">✓</button>' +
-      '<div style="min-width:0"><div class="ttl">' + esc(tk.title) + '</div><div class="ts"><i style="background:' + col(tk.subject) + '"></i>' + esc(tk.subject) + '</div></div>' +
+      '<button class="chk" aria-label="' +
+      (tk.completed ? '未完了に戻す' : '完了にする') +
+      '">✓</button>' +
+      '<div style="min-width:0"><div class="ttl">' +
+      esc(tk.title) +
+      '</div><div class="ts"><i style="background:' +
+      col(tk.subject) +
+      '"></i>' +
+      esc(tk.subject) +
+      '</div></div>' +
       blocksHtml(tk) +
       '<button class="menu" aria-label="編集">編集</button>';
     r.onclick = (e) => {
@@ -265,12 +301,25 @@ function renderFoot() {
     for (let i = 0; i < n; i++) {
       cnt++;
       if (cnt > MAX) continue;
-      bl += '<i class="' + (i < done ? 'on' : '') + '"' + (i < done ? ' style="background:' + c + ';border-color:' + c + '"' : '') + '></i>';
+      bl +=
+        '<i class="' +
+        (i < done ? 'on' : '') +
+        '"' +
+        (i < done ? ' style="background:' + c + ';border-color:' + c + '"' : '') +
+        '></i>';
     }
   });
   if (cnt > MAX) bl += '<span class="more">+' + (cnt - MAX) + '</span>';
   const remMin = rem * (Number(settings.focus) || 25);
   $('taskFoot').innerHTML =
-    '<div class="blocks foot-blocks" role="img" aria-label="見積もり' + estSum + '回中' + doneSum + '回完了">' + bl + '</div>' +
-    '<div style="margin-top:6px">' + (rem ? '残り <b>' + rem + '</b> ポモ（約' + fmt(remMin) + '）' : '見積もり分はすべて完了') + '</div>';
+    '<div class="blocks foot-blocks" role="img" aria-label="見積もり' +
+    estSum +
+    '回中' +
+    doneSum +
+    '回完了">' +
+    bl +
+    '</div>' +
+    '<div style="margin-top:6px">' +
+    (rem ? '残り <b>' + rem + '</b> ポモ（約' + fmt(remMin) + '）' : '見積もり分はすべて完了') +
+    '</div>';
 }

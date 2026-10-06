@@ -21,7 +21,18 @@ function fakeStorage(init = {}) {
 
 const OLD = {
   settings: { focus: 30, subjects: ['簿記論'] },
-  months: { '2026-10': [{ id: 'a', start: new Date(2026, 9, 6).getTime(), end: 0, min: 25, subject: '簿記論', memo: '' }] },
+  months: {
+    '2026-10': [
+      {
+        id: 'a',
+        start: new Date(2026, 9, 6).getTime(),
+        end: 0,
+        min: 25,
+        subject: '簿記論',
+        memo: '',
+      },
+    ],
+  },
   tasks: [{ id: 't', title: '過去問', subject: '簿記論', est: 2, done: 1, completed: false }],
 };
 
@@ -62,7 +73,14 @@ describe('store', () => {
     const st = createStore(s);
     const fn = vi.fn();
     st.subscribe(fn);
-    const sess = { id: 'x', start: new Date(2026, 9, 6).getTime(), end: 0, min: 5, subject: 'a', memo: '' };
+    const sess = {
+      id: 'x',
+      start: new Date(2026, 9, 6).getTime(),
+      end: 0,
+      min: 5,
+      subject: 'a',
+      memo: '',
+    };
     st.addSession(sess);
     expect(st.state.months['2026-10']).toEqual([sess]);
     expect(JSON.parse(s.m.get('pomo.data.v1')).months['2026-10']).toEqual([sess]);
@@ -79,7 +97,10 @@ describe('store', () => {
     st.subscribe(fn);
     st.setTasks(OLD.tasks);
     st.setSettings({ ...DEFAULTS, focus: 40 });
-    expect(JSON.parse(s.m.get('pomo.data.v1'))).toMatchObject({ tasks: OLD.tasks, settings: { focus: 40 } });
+    expect(JSON.parse(s.m.get('pomo.data.v1'))).toMatchObject({
+      tasks: OLD.tasks,
+      settings: { focus: 40 },
+    });
     expect(fn).not.toHaveBeenCalled();
   });
 

@@ -18,7 +18,8 @@ export function normalizeTimer(saved) {
   };
 }
 
-export const dur = (mode, settings) => Math.max(1, Number(settings[mode]) || DEFAULTS[mode]) * 60000;
+export const dur = (mode, settings) =>
+  Math.max(1, Number(settings[mode]) || DEFAULTS[mode]) * 60000;
 
 export const longEvery = (settings) => Math.max(2, Number(settings.longEvery) || 4);
 

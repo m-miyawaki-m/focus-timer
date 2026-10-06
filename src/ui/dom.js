@@ -5,7 +5,10 @@ export const $ = (id) => document.getElementById(id);
 export const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function esc(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  return String(s).replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
+  );
 }
 
 export function saveFile(name, data, mime) {
