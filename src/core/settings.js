@@ -33,6 +33,7 @@ export function settingsFromForm(prev, f) {
     longEvery: clampInt(f.longEvery, 2, 10, 4),
     weeklyGoalH: clampInt(f.weeklyGoalH, 1, 100, 15),
     autoBreak: !!f.autoBreak,
+    keepAwake: !!f.keepAwake,
     subjects: subs.length ? subs : DEFAULTS.subjects.slice(),
     bgFocus: f.bgFocus === 'glass' ? 'glass' : 'snow',
     bgBreak: f.bgBreak === 'same' ? 'same' : 'fire',

@@ -14,6 +14,7 @@ export const APP_CONFIG = {
     bgBreak: 'fire', // 休憩中の背景
     bgSpeed: 50, // 背景アニメの速さ
     fireworks: true, // 完了時の花火
+    keepAwake: true, // タイマー中は画面を点けたままにする
   },
   // 科目の色（科目の並び順に割り当て）
   COLORS: ['#2F4BB8', '#1C8A6E', '#C2731A', '#8A4FB8', '#B83F5E', '#3F7FA6', '#7A8A2E', '#8C6E5A'],

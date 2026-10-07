@@ -1,4 +1,4 @@
-const CACHE = 'focus-timer-v3';
+const CACHE = 'focus-timer-v4';
 const SHELL = [
   './',
   './index.html',
@@ -16,6 +16,7 @@ const SHELL = [
   './src/ui/feedback.js',
   './src/ui/background.js',
   './src/ui/look.js',
+  './src/ui/wake.js',
   './src/ui/timer-view.js',
   './src/ui/tasks-view.js',
   './src/ui/stats-view.js',

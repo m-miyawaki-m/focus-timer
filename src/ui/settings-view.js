@@ -17,6 +17,7 @@ export function init(c) {
       longEvery: $('sEvery').value,
       weeklyGoalH: $('sGoal').value,
       autoBreak: $('sAuto').checked,
+      keepAwake: $('sAwake').checked,
       subjects: $('sSubjects').value,
       bgFocus: $('sBgFocus').value,
       bgBreak: $('sBgBreak').value,
@@ -69,6 +70,7 @@ export function renderSettings() {
   $('sLong').value = settings.long;
   $('sEvery').value = settings.longEvery;
   $('sAuto').checked = !!settings.autoBreak;
+  $('sAwake').checked = settings.keepAwake !== false;
   $('sGoal').value = settings.weeklyGoalH;
   $('sSubjects').value = settings.subjects.join('\n');
   $('sBgFocus').value = settings.bgFocus;
