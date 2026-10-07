@@ -178,6 +178,7 @@ function renderTime() {
 export function renderTimer() {
   const { t, settings } = S();
   ctx.updateIdle();
+  ctx.updateWake();
   $('tab-timer').dataset.mode = t.mode;
   ctx.pillText();
   $('modeLabel').textContent = t.running

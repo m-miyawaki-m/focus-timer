@@ -4,6 +4,7 @@ import { $ } from './ui/dom.js';
 import * as feedback from './ui/feedback.js';
 import * as background from './ui/background.js';
 import * as look from './ui/look.js';
+import * as wake from './ui/wake.js';
 import * as timerView from './ui/timer-view.js';
 import * as tasksView from './ui/tasks-view.js';
 import * as statsView from './ui/stats-view.js';
@@ -33,6 +34,7 @@ const ctx = {
   applyLook: look.applyLook,
   pillText: look.pillText,
   updateIdle: look.updateIdle,
+  updateWake: wake.updateWake,
   consumeSuppressedTap: look.consumeSuppressedTap,
   renderNow: tasksView.renderNow,
   renderAll,
@@ -45,6 +47,7 @@ addEventListener('storage', (e) => store.applyExternal(e.key, e.newValue));
 
 tasksView.init(ctx);
 look.init(ctx);
+wake.init(ctx);
 timerView.init(ctx);
 statsView.init(ctx);
 settingsView.init(ctx);
